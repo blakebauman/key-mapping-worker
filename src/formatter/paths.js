@@ -9,21 +9,20 @@ const pathCache = new Map();
  * @param {string} path - The dot-separated path string representing the nested key.
  * @returns {Array} - An array of resolved values for the nested key.
  */
-export function resolveNestedKey(object, path) {
-	if (!pathCache.has(path)) {
-		const keys = path.split('.');
-		pathCache.set(path, keys);
-	}
-	const keys = pathCache.get(path);
+export function resolveNestedKey(object, path, returnParents = false) {
+	if (!path) return [object]; // For top-level keys
 
+	const keys = path.split('.');
 	let current = [object];
+
 	for (const key of keys) {
 		if (key.endsWith('[]')) {
 			const baseKey = key.slice(0, -2);
-			current = current.flatMap((item) => (item && item[baseKey] ? item[baseKey] : []));
+			current = current.flatMap((item) => (item && item[baseKey] ? item[baseKey].map((child) => (returnParents ? item : child)) : []));
 		} else {
-			current = current.map((item) => (item ? item[key] : undefined)).filter((item) => item !== undefined);
+			current = current.map((item) => (returnParents ? item : item ? item[key] : undefined)).filter(Boolean);
 		}
 	}
+
 	return current;
 }
