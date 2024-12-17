@@ -58,6 +58,9 @@
       "sourceKey": "orders.items[].customer_lastname",
       "targetKey": "redactedCustomerLastname",
       "transformFunction": "redactString",
+      "functionParams": {
+        "replaceValue": "{CUSTOM-REDACTED}"
+      },
       "removeSourceKey": true
     }
   ],
