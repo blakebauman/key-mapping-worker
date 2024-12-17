@@ -1,0 +1,23 @@
+{
+    "pricingApi": [
+        { "sourceKey": "data.products[].unitSellPrice", "targetKey": "formattedUnitSellPrice", "transformFunction": "formatCurrency", "removeSourceKey": true },
+        { "sourceKey": "data.products[].customerUnitSellPrice", "targetKey": "formattedCustomerUnitSellPrice", "transformFunction": "formatCurrency"},
+        { "sourceKey": "data.products[].baseUom", "targetKey": "formattedBaseUom", "transformFunction": "toUpperCase"},
+        { "sourceKey": "data.products[].priceUom", "targetKey": "formattedPriceUom", "transformFunction": "toUpperCase", "removeSourceKey": true },
+        {
+            "sourceKey": "data.products[].unit_sell_price_not_rounded",
+            "targetKey": "sensitiveData",
+            "transformFunction": "removeSourceKey",
+            "removeSourceKey": true
+        }
+    ],
+    "orderDetailsApi": [
+        { "sourceKey": "orders.items[].items[].product_sale_price.value", "targetKey": "formattedUnitSellPrice", "transformFunction": "formatCurrency"},
+        { "sourceKey": "orders.items[].items[].product_row_total", "targetKey": "formattedProductRowTotal", "transformFunction": "formatCurrency"},
+        { "sourceKey": "orders.items[].items[].price_uom", "targetKey": "formattedPriceUom", "transformFunction": "toUpperCase", "removeSourceKey": true },
+        { "sourceKey": "orders.items[].customer_email", "targetKey": "formattedCustomerEmail", "transformFunction": "replaceString", "transformParams": { "searchValue": "neelu.velpuri@wescodist.com", "replaceValue": "-" }, "removeSourceKey": true }
+    ],
+    "checkoutDetailsApi": [
+        { "sourceKey": "orders.items[].order_date", "targetKey": "formattedOrderDate", "transformFunction": "formatDate"}
+    ]
+}
