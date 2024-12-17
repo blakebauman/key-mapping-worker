@@ -4,6 +4,16 @@ import { formatCurrency } from './currency';
 /**
  * A collection of custom transformation functions.
  */
+/**
+ * An object containing custom transformation functions.
+ *
+ * @namespace customTransforms
+ * @property {Function} formatCurrency - Formats a number as a currency string.
+ * @property {Function} toUpperCase - Converts a string to uppercase.
+ * @property {Function} formatDate - Formats a date string to a specified format.
+ * @property {Function} replaceString - Replaces occurrences of a substring within a string.
+ * @property {Function} removeSourceKey - Removes the source key entirely from the payload.
+ */
 export const customTransforms = {
 	formatCurrency: (value, params) => {
 		return () => formatCurrency(value, params.currencyCode, params.decimalPlaces);
@@ -17,6 +27,15 @@ export const customTransforms = {
 			return date.toISOString().split('T')[0];
 		};
 	},
+	/**
+	 * Replaces occurrences of a specified string or regular expression within a value.
+	 *
+	 * @param {string} value - The original string to perform replacements on.
+	 * @param {Object} [params] - Parameters for the replacement.
+	 * @param {string|RegExp} [params.searchValue] - The string or regular expression to search for.
+	 * @param {string} [params.replaceValue] - The string to replace the searchValue with.
+	 * @returns {Function} A function that performs the replacement and returns the modified string.
+	 */
 	replaceString: (value, { searchValue, replaceValue } = {}) => {
 		return () => {
 			if (!searchValue || !replaceValue) {
@@ -30,13 +49,20 @@ export const customTransforms = {
 		};
 	},
 	/**
-	 * A transformation function to remove the source key entirely from the payload.
+	 * A transformation function to indicate the source key should be removed.
+	 * When this function is used, the framework assumes the sourceKey should be deleted
+	 * entirely and ignores any targetKey assignment.
 	 *
-	 * @param {Object} value - The value to remove (not used here).
-	 * @param {Object} params - Additional parameters (optional, for extensibility).
-	 * @returns {Function} A function that returns undefined, signifying removal.
+	 * @returns {Function} A function that signals the removal.
 	 */
-	removeSourceKey: (value, params = {}) => {
-		return () => undefined; // No value returned, ensuring key is removed.
+	removeSourceKey: () => {
+		return (payload, parent, key) => {
+			// Remove the key directly from its parent object
+			return (payload, parent, key) => {
+				if (parent && key in parent) {
+					delete parent[key];
+				}
+			};
+		};
 	},
 };
