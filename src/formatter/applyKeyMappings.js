@@ -12,6 +12,7 @@ import { resolveNestedKey } from './paths'; // Your existing utility function
  * @returns {Object} - The modified payload object with new attributes added based on the key mappings.
  */
 async function applyKeyMappings(payload, apiName, transformParams = {}, customParams = {}) {
+	const startTime = performance.now();
 	const keyMappings = getMappings(apiName);
 
 	if (!keyMappings) {
@@ -21,50 +22,58 @@ async function applyKeyMappings(payload, apiName, transformParams = {}, customPa
 		return payload;
 	}
 
-	await Promise.all(
-		keyMappings.map(async ({ sourceKey, targetKey, transformFunction, functionParams = {}, removeSourceKey = false }) => {
-			// Combine default, mapping-specific, and custom parameters dynamically
-			const combinedParams = {
-				...transformParams,
-				...functionParams,
-				...(customParams[transformFunction] || {}),
-			};
+	try {
+		await Promise.all(
+			keyMappings.map(async ({ sourceKey, targetKey, transformFunction, functionParams = {}, removeSourceKey = false }) => {
+				// Combine default, mapping-specific, and custom parameters dynamically
+				const combinedParams = {
+					...transformParams,
+					...functionParams,
+					...(customParams[transformFunction] || {}),
+				};
 
-			// Resolve parent paths and values
-			const parentPath = sourceKey.split('.').slice(0, -1).join('.');
-			const parents = resolveNestedKey(payload, parentPath);
-			const values = resolveNestedKey(payload, sourceKey);
+				// Resolve parent paths and values
+				const parentPath = sourceKey.split('.').slice(0, -1).join('.');
+				const parents = resolveNestedKey(payload, parentPath);
+				const values = resolveNestedKey(payload, sourceKey);
 
-			if (parents && values) {
-				values.forEach((value, index) => {
-					// Lazy transformation: Execute transformation only when needed
-					const lazyTransformedValue =
-						transformFunction && customTransforms[transformFunction]
-							? customTransforms[transformFunction](value, combinedParams)
-							: () => value;
+				if (parents && values) {
+					values.forEach((value, index) => {
+						// Lazy transformation: Execute transformation only when needed
+						const lazyTransformedValue =
+							transformFunction && customTransforms[transformFunction]
+								? customTransforms[transformFunction](value, combinedParams)
+								: () => value;
 
-					// Apply the transformation
-					const transformedValue = lazyTransformedValue();
+						// Apply the transformation
+						const transformedValue = lazyTransformedValue();
 
-					if (removeSourceKey) {
-						// Remove the original sourceKey entirely
-						const sourceKeyParts = sourceKey.split('.');
-						const lastKey = sourceKeyParts.pop();
-						const parentObject = resolveNestedKey(payload, sourceKeyParts.join('.'))[index];
+						if (removeSourceKey) {
+							// Remove the original sourceKey entirely
+							const sourceKeyParts = sourceKey.split('.');
+							const lastKey = sourceKeyParts.pop();
+							const parentObject = resolveNestedKey(payload, sourceKeyParts.join('.'))[index];
 
-						if (parentObject && lastKey in parentObject) {
-							delete parentObject[lastKey];
+							if (parentObject && lastKey in parentObject) {
+								delete parentObject[lastKey];
+							}
 						}
-					}
 
-					if (transformedValue !== undefined) {
-						// Assign transformed value to the target key
-						parents[index][targetKey] = transformedValue;
-					}
-				});
-			}
-		})
-	);
+						if (transformedValue !== undefined) {
+							// Assign transformed value to the target key
+							parents[index][targetKey] = transformedValue;
+						}
+					});
+				}
+			})
+		);
+	} catch (error) {
+		console.error('Error applying key mappings:', error.message, { payload, keyMappings });
+		throw error;
+	} finally {
+		const endTime = performance.now();
+		console.log(`Key mappings applied in ${endTime - startTime}ms`);
+	}
 
 	return payload;
 }

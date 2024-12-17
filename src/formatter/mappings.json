@@ -24,6 +24,7 @@
     {
       "sourceKey": "data.products[].unit_sell_price_not_rounded",
       "transformFunction": "removeSourceKey",
+      "functionParams": { "logKey": true, "reason": "GDPR compliance: Remove sensitive data" },
       "removeSourceKey": true
     }
   ],
@@ -48,9 +49,9 @@
       "sourceKey": "orders.items[].customer_email",
       "targetKey": "formattedCustomerEmail",
       "transformFunction": "replaceString",
-      "functionParams": {
-        "searchValue": "wescodist.com",
-        "replaceValue": "{REDACTED}"
+      "functionParams": { 
+        "searchValue": "(.*)@(.*)", 
+        "replaceValue": "*****@*****" 
       },
       "removeSourceKey": true
     },
