@@ -48,10 +48,16 @@
       "sourceKey": "orders.items[].customer_email",
       "targetKey": "formattedCustomerEmail",
       "transformFunction": "replaceString",
-      "transformParams": {
-        "searchValue": "neelu.velpuri@wescodist.com",
+      "functionParams": {
+        "searchValue": "wescodist.com",
         "replaceValue": "{REDACTED}"
       },
+      "removeSourceKey": true
+    },
+    {
+      "sourceKey": "orders.items[].customer_lastname",
+      "targetKey": "redactedCustomerLastname",
+      "transformFunction": "redactString",
       "removeSourceKey": true
     }
   ],
@@ -65,8 +71,8 @@
       "sourceKey": "id",
       "targetKey": "formattedId",
       "transformFunction": "replaceString",
-      "transformParams": {
-        "searchValue": "xpfx84B5W2qPUri10btICMIe3xPqvaxX",
+      "functionParams": {
+        "searchValue": "SrEEmVVAYOQEuZStANOHsFJa2QcErFib",
         "replaceValue": "{REDACTED}"
       },
       "removeSourceKey": true

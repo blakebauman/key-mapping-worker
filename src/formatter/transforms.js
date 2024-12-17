@@ -19,7 +19,13 @@ export const customTransforms = {
 		return () => formatCurrency(value, params.currencyCode, params.decimalPlaces);
 	},
 	toUpperCase: (value) => {
-		return () => value.toUpperCase();
+		return () => {
+			if (typeof value !== 'string') {
+				console.warn('toUpperCase: Value is not a string. Returning original value.');
+				return value;
+			}
+			return value.toUpperCase();
+		};
 	},
 	formatDate: (value, { dateFormat = 'YYYY-MM-DD' } = {}) => {
 		return () => {
@@ -36,16 +42,36 @@ export const customTransforms = {
 	 * @param {string} [params.replaceValue] - The string to replace the searchValue with.
 	 * @returns {Function} A function that performs the replacement and returns the modified string.
 	 */
-	replaceString: (value, { searchValue, replaceValue } = {}) => {
+	replaceString: (value, { searchValue, replaceValue }) => {
 		return () => {
-			if (!searchValue || !replaceValue) {
-				console.warn("replaceString: Missing 'searchValue' or 'replaceValue'.");
-				return value; // Return the original value if parameters are missing
+			if (typeof value !== 'string') return value;
+
+			if (!searchValue || replaceValue === undefined) {
+				console.warn("replaceString: Missing 'searchValue' or 'replaceValue'");
+				return value;
 			}
 
-			// Ensure searchValue is a string or a valid regular expression
 			const regex = new RegExp(searchValue, 'g');
 			return value.replace(regex, replaceValue);
+		};
+	},
+	/**
+	 * Replaces occurrences of a specified string or regular expression within a value.
+	 *
+	 * @param {string} value - The original string to perform replacements on.
+	 * @param {Object} [params] - Parameters for the replacement.
+	 * @param {string|RegExp} [params.searchValue] - The string or regular expression to search for.
+	 * @param {string} [params.replaceValue] - The string to replace the searchValue with.
+	 * @returns {Function} A function that performs the replacement and returns the modified string.
+	 */
+	redactString: (value, { replaceValue = '{REDACTED}' }) => {
+		return () => {
+			if (typeof value !== 'string') {
+				console.warn('replaceString: Value must be a string. Returning original value.');
+				return value;
+			}
+
+			return replaceValue;
 		};
 	},
 	/**

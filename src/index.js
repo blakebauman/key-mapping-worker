@@ -26,13 +26,12 @@ export default {
 			// Default transform parameters to use at runtime
 			// Pull from ctx in worker implementation
 			const defaultTransformParams = { locale: 'en-CA', currencyCode: 'CAD', decimalPlaces: 2 };
-			// Custom parameters for specific transformations
-			const customParams = {
-				replaceString: [
-					{ searchValue: 'Limited', replaceValue: 'Special' },
-					{ searchValue: 'Time', replaceValue: 'Period' },
-				],
-			};
+			//Custom parameters for specific transformations
+			// const customParams = {
+			// 	replaceString: [{ searchValue: 'wescodist.com', replaceValue: '{REDACT}}' }],
+			// };
+
+			const customParams = {};
 
 			let transformed;
 

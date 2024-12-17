@@ -15,15 +15,18 @@ async function applyKeyMappings(payload, apiName, transformParams = {}, customPa
 	const keyMappings = getMappings(apiName);
 
 	if (!keyMappings) {
-		throw new Error(`No mappings found for API: ${apiName}`);
+		// throw new Error(`No mappings found for API: ${apiName}`);
+		console.warn(`No mappings found for API: ${apiName}`);
+		// Gracefully return the original payload if no mappings are found
+		return payload;
 	}
 
 	await Promise.all(
-		keyMappings.map(async ({ sourceKey, targetKey, transformFunction, params = {}, removeSourceKey = false }) => {
+		keyMappings.map(async ({ sourceKey, targetKey, transformFunction, functionParams = {}, removeSourceKey = false }) => {
 			// Combine default, mapping-specific, and custom parameters dynamically
 			const combinedParams = {
 				...transformParams,
-				...params,
+				...functionParams,
 				...(customParams[transformFunction] || {}),
 			};
 
